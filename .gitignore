@@ -1,3 +1,8 @@
+# data folder
+data/*.xlsx
+data/*.xlx
+data/*.xls
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
