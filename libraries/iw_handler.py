@@ -65,7 +65,7 @@ class IWHandler:
         # check if all have no limit
         no_limit = True
         for c_info in self.__config["categories"].values():
-            if c_info[1] is False:
+            if c_info[0] != -1:
                 # Found one category with a limit
                 no_limit = False
                 break
@@ -78,6 +78,10 @@ class IWHandler:
         all_below_limit = True
         for c_name, c_info in self.__config["categories"].items():
             df_key = f"{self.__config["prefMainK"]}1"
+            # no limit for this category, so ignore it
+            if c_info[0] == -1:
+                continue
+            # category with a limit, so compare
             if self.__data[self.__data[df_key] == c_name][df_key].count() > c_info[0]:
                 # Found one category where the amount of people that selected it
                 # is larger than the category capacity
@@ -105,16 +109,74 @@ class IWHandler:
             pref_key = f"{self.__config["nameK"]}1"
             df[self.__config["Assigned Category"]] = self.__data[pref_key]
         else:
+            # create a copy of original df
+            df_org = self.__data.copy(True)
+
             # not everybody can get their 1st preference!
-            # assign based upon first come, first serve
+            # assign based upon first come, first serve (FCFS)
             # filter df and then assign up to capacity
             # do this for every category
             # then assign non-assigned based upon 2nd pref if capacity allows
             # if not try 3rd pref, 4th pref etc. and else assign to UNASSIGNABLE
-            pass
+
+            # the amount of categories
+            c_amount = len(self.__config["categories"].keys())
+
+            # iterate through all categories and assign
+            for i in range(1, c_amount + 1):
+                pref_key = f"{self.__config["prefMainK"]}{i}"
+                for c, c_info in self.__config["categories"].items():
+                    # category with no limit
+                    if c_info[0] == -1:
+                        # assign directly since this category has no limit
+                        df[self.__config["nameK"]] = df_org[df_org[pref_key] == c][
+                            self.__config["nameK"]
+                        ]
+                        df[self.__config["sidK"]] = df_org[df_org[pref_key] == c][
+                            self.__config["sidK"]
+                        ]
+                        df[self.__config["Assigned Category"]] = df_org[
+                            df_org[pref_key] == c
+                        ][pref_key]
+                        # TODO: remove the assigned people from the original df to not reassign
+                    else:
+                        # category with a limit
+                        # first check if limit is already exceeded
+                        taken_spots = df[df["Assigned Category"] == c].count()
+                        if taken_spots < c_info[0]:
+                            # still space
+                            # the remaining spots
+                            rem_spots = c_info[0] - taken_spots
+                            # the people that get a spot
+                            df[self.__config["nameK"]] = df_org[df_org[pref_key] == c][
+                                self.__config["nameK"]
+                            ][:rem_spots]
+                            df[self.__config["sidK"]] = df_org[df_org[pref_key] == c][
+                                self.__config["sidK"]
+                            ][:rem_spots]
+                            df[self.__config["Assigned Category"]] = df_org[
+                                df_org[pref_key] == c
+                            ][pref_key][:rem_spots]
+                            # TODO: remove the assigned people from the original df to not reassign
+            # now check if everybody was assigned
+            # this means counting the remaining people in the original df
+            if df_org.count() > 0:
+                # unassignable people
+                df[self.__config["nameK"]] = df_org[self.__config["nameK"]]
+                df[self.__config["sidK"]] = df_org[self.__config["sidK"]]
+                df[self.__config["Assigned Category"]] = "UNASSIGNABLE"
 
         # handle the sub groups for the special categories
         # filter for special categories
         # lookup the respective buddy group
-        # use some kind of algorithm (https://stackoverflow.com/a/73738016)
+        for c, c_info in self.__config["categories"].keys():
+            # skip non-special categories
+            if c_info[1] is False:
+                continue
+            # create new df with full information
+            df_org = self.__data.copy(True)
+            # TODO: merge info with extra data for buddy groups
+            # df.merge()
+            # TODO: create sub groups
+            # (https://stackoverflow.com/a/73738016)
         return df
