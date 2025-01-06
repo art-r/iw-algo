@@ -83,7 +83,7 @@ class IWHandler:
         # compare the limits
         all_below_limit = True
         for c_name, c_info in self.__config["categories"].items():
-            df_key = f"{self.__config["prefMainK"]}1"
+            df_key = f"{self.__config['prefMainK']}1"
             # no limit for this category, so ignore it
             if c_info[0] == -1:
                 continue
@@ -134,7 +134,7 @@ class IWHandler:
         if self.__check_easy_case():
             df[self.__config["nameK"]] = self.__data[self.__config["nameK"]]
             df[self.__config["sidK"]] = self.__data[self.__config["sidK"]]
-            pref_key = f"{self.__config["prefMainK"]}1"
+            pref_key = f"{self.__config['prefMainK']}1"
             df["Assigned Category"] = self.__data[pref_key]
         else:
             # create a copy of original df
@@ -144,7 +144,7 @@ class IWHandler:
             c_amount = len(self.__config["categories"].keys())
             # iterate through all categories and assign
             for i in range(1, c_amount + 1):
-                pref_key = f"{self.__config["prefMainK"]}{i}"
+                pref_key = f"{self.__config['prefMainK']}{i}"
                 for c, c_info in self.__config["categories"].items():
                     # category with no limit
                     if c_info[0] == -1:
