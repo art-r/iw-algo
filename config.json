@@ -1,14 +1,19 @@
 {
-    "nameK": "",
-    "sidK": "",
-    "prefMainK": "",
+    "nameK": "name",
+    "sidK": "studentnumber",
+    "prefMainK": "pref",
     "categories": {
-        "name": [
+        "Vikings": [
+            2,
+            false,
+            0
+        ],
+        "Backup": [
             -1,
             false,
             0
         ]
     },
-    "extsidK": "",
-    "extBK": ""
+    "extsidK": "studentnumber",
+    "extBK": "buddygroup"
 }
