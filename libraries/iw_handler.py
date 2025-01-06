@@ -195,8 +195,6 @@ class IWHandler:
         # filter for special categories
         # lookup the respective buddy group
 
-        # create new df with full information
-        df_org = self.__data.copy(True)
         for c, c_info in self.__config["categories"].items():
             # skip non-special categories
             if c_info[1] is False:
@@ -205,8 +203,8 @@ class IWHandler:
 
             # main idea from https://stackoverflow.com/a/73738016
             # filter only relevant people
-            relevant_ids = df[df["Assigned Category"] == c][self.__config["sidK"]]
-            df_ext = df_ext[df_ext[self.__config["extsidK"]].isin(relevant_ids)]
+            relevant_ids = df[df["Assigned Category"] == c][self.__config["sidK"]].values
+            df_ext = df_ext[df_ext[self.__config["extsidK"]].isin(relevant_ids)].reset_index()
 
             # initialize groups
             # c_info[2] is amount of groups
@@ -216,7 +214,6 @@ class IWHandler:
             for _, row in df_ext.iterrows():
                 group_index = random.randint(0, c_info[2]-1)
                 groups[group_index].append((row[self.__config["extsidK"]], row[self.__config["extBK"]]))
-            
             # Parameters for the simulated annealing
             temp = 100.0
             cooling_r = 0.99
@@ -253,14 +250,23 @@ class IWHandler:
                         groups[group2].append(member2)
                 # Decrease the temperature
                 temp *= cooling_r
-        
-        # convert groups to dataframe
-        group_df = pd.DataFrame([(group, student_id, bGroup) for group, members in groups.items() for student_id, bGroup in members], columns=['Assigned Subgroup', self.__config["sidK"], 'buddy group'])
+            # convert groups to dataframe
+            group_df = pd.DataFrame([(group, student_id, bGroup) for group, members in groups.items() for student_id, bGroup in members], columns=['Assigned Subgroup', self.__config["sidK"], 'buddy group'])
 
-        # now assign groups
-        df = pd.merge(df, group_df, on=self.__config["sidK"], how="left")
+            # save in target df
+            if "Assigned Subgroup" not in df.columns:
+                # first merge
+                df = pd.merge(df, group_df, on=self.__config["sidK"], how="left")
+            else:
+                df.set_index(self.__config["sidK"], inplace=True)
+                group_df.set_index(self.__config["sidK"], inplace=True)
+                df = df.combine_first(group_df)
+                df.reset_index(inplace=True)
+        # change empty to -1 for easier conversion
         df["Assigned Subgroup"] = df["Assigned Subgroup"].fillna(-1)
+        # convert group numbers to int val
         df["Assigned Subgroup"] = df["Assigned Subgroup"].astype(int)
+        # change back to N/A for categories that do not require subgroups
         df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1,"N/A")
-        
+
         return df
