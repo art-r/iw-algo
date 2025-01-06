@@ -25,7 +25,6 @@ class IWHandler:
 
     def __init__(self):
         self.__config = self.__read_config()
-        self.__c_amount = len(self.__config["categories"].keys())
         self.__prev_data = False
         self.__data = None
         self.__ext_data = None
@@ -96,7 +95,7 @@ class IWHandler:
                 break
         return all_below_limit
 
-    def __shannon_entroy(self, group):
+    def __shannon_entropy(self, group):
         """
         Helper function to calculate shannon entropy
         """
@@ -108,7 +107,7 @@ class IWHandler:
         Helper function to calculate the total diversity for all groups
         """
         return sum(
-            self.__shannon_entroy(pd.Series([bGroup for _, bGroup in group]))
+            self.__shannon_entropy(pd.Series([bGroup for _, bGroup in group]))
             for group in groups.values()
         )
 
