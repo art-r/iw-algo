@@ -117,7 +117,6 @@ class IWHandler:
             "Special Group",
         ]
         df = pd.DataFrame(columns=cols)
-        
 
         # Easy case: all can get their 1st preference
         if self.__check_easy_case():
@@ -138,14 +137,22 @@ class IWHandler:
                     # category with no limit
                     if c_info[0] == -1:
                         # assign directly since this category has no limit
-                        df = pd.concat([df, df_org[df_org[pref_key] == c]], ignore_index=True)[cols]
+                        df = pd.concat(
+                            [df, df_org[df_org[pref_key] == c]], ignore_index=True
+                        )[cols]
 
                         df["Assigned Category"] = df["Assigned Category"].fillna(c)
-                        df_org = df_org[~df_org[self.__config["sidK"]].isin(df[self.__config["sidK"]])]
+                        df_org = df_org[
+                            ~df_org[self.__config["sidK"]].isin(
+                                df[self.__config["sidK"]]
+                            )
+                        ]
                     else:
                         # category with a limit
                         # first check if limit is already exceeded
-                        taken_spots = df[df["Assigned Category"] == c]["Assigned Category"].count()
+                        taken_spots = df[df["Assigned Category"] == c][
+                            "Assigned Category"
+                        ].count()
                         if taken_spots < c_info[0]:
                             print("Still space: ", taken_spots)
                             # still space
@@ -153,9 +160,16 @@ class IWHandler:
                             rem_spots = c_info[0] - taken_spots
                             # the people that get a spot
                             # print(df_org[df_org[pref_key] == c][:rem_spots])
-                            df = pd.concat([df, df_org[df_org[pref_key] == c][:rem_spots]], ignore_index=True)[cols]
+                            df = pd.concat(
+                                [df, df_org[df_org[pref_key] == c][:rem_spots]],
+                                ignore_index=True,
+                            )[cols]
                             df["Assigned Category"] = df["Assigned Category"].fillna(c)
-                            df_org = df_org[~df_org[self.__config["sidK"]].isin(df[self.__config["sidK"]])]
+                            df_org = df_org[
+                                ~df_org[self.__config["sidK"]].isin(
+                                    df[self.__config["sidK"]]
+                                )
+                            ]
             # now check if everybody was assigned
             # this means counting the remaining people in the original df
             if df_org.shape[0] > 0:
