@@ -95,19 +95,22 @@ class IWHandler:
                 all_below_limit = False
                 break
         return all_below_limit
-    
+
     def __shannon_entroy(self, group):
         """
         Helper function to calculate shannon entropy
         """
         proportions = group.value_counts(normalize=True)
         return -sum(proportions * np.log(proportions))
-    
+
     def __total_diversity(self, groups):
         """
         Helper function to calculate the total diversity for all groups
         """
-        return sum(self.__shannon_entroy(pd.Series([bGroup for _, bGroup in group])) for group in groups.values())
+        return sum(
+            self.__shannon_entroy(pd.Series([bGroup for _, bGroup in group]))
+            for group in groups.values()
+        )
 
     def compute(self):
         """
@@ -125,11 +128,7 @@ class IWHandler:
         Then the special categories are handled where sub-groups need to be created
         """
         # Name - Student Number - Assignment
-        cols = [
-            self.__config["nameK"],
-            self.__config["sidK"],
-            "Assigned Category"
-        ]
+        cols = [self.__config["nameK"], self.__config["sidK"], "Assigned Category"]
         df = pd.DataFrame(columns=cols)
 
         # Easy case: all can get their 1st preference
@@ -203,8 +202,12 @@ class IWHandler:
 
             # main idea from https://stackoverflow.com/a/73738016
             # filter only relevant people
-            relevant_ids = df[df["Assigned Category"] == c][self.__config["sidK"]].values
-            df_ext = df_ext[df_ext[self.__config["extsidK"]].isin(relevant_ids)].reset_index()
+            relevant_ids = df[df["Assigned Category"] == c][
+                self.__config["sidK"]
+            ].values
+            df_ext = df_ext[
+                df_ext[self.__config["extsidK"]].isin(relevant_ids)
+            ].reset_index()
 
             # initialize groups
             # c_info[2] is amount of groups
@@ -212,8 +215,10 @@ class IWHandler:
 
             # initial random assignment
             for _, row in df_ext.iterrows():
-                group_index = random.randint(0, c_info[2]-1)
-                groups[group_index].append((row[self.__config["extsidK"]], row[self.__config["extBK"]]))
+                group_index = random.randint(0, c_info[2] - 1)
+                groups[group_index].append(
+                    (row[self.__config["extsidK"]], row[self.__config["extBK"]])
+                )
             # Parameters for the simulated annealing
             temp = 100.0
             cooling_r = 0.99
@@ -240,7 +245,9 @@ class IWHandler:
 
                     # accept the new arrangement if diversity improves
                     # or with a probability based upon temperature
-                    if new_score > cur_score or random.random() < np.exp((new_score - cur_score) / temp):
+                    if new_score > cur_score or random.random() < np.exp(
+                        (new_score - cur_score) / temp
+                    ):
                         cur_score = new_score
                     else:
                         # revert the swap
@@ -251,7 +258,14 @@ class IWHandler:
                 # Decrease the temperature
                 temp *= cooling_r
             # convert groups to dataframe
-            group_df = pd.DataFrame([(group, student_id, bGroup) for group, members in groups.items() for student_id, bGroup in members], columns=['Assigned Subgroup', self.__config["sidK"], 'buddy group'])
+            group_df = pd.DataFrame(
+                [
+                    (group, student_id, bGroup)
+                    for group, members in groups.items()
+                    for student_id, bGroup in members
+                ],
+                columns=["Assigned Subgroup", self.__config["sidK"], "buddy group"],
+            )
 
             # save in target df
             if "Assigned Subgroup" not in df.columns:
@@ -267,6 +281,6 @@ class IWHandler:
         # convert group numbers to int val
         df["Assigned Subgroup"] = df["Assigned Subgroup"].astype(int)
         # change back to N/A for categories that do not require subgroups
-        df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1,"N/A")
+        df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1, "N/A")
 
         return df
