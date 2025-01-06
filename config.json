@@ -4,9 +4,9 @@
     "prefMainK": "pref",
     "categories": {
         "Vikings": [
-            2,
-            false,
-            0
+            8,
+            true,
+            4
         ],
         "Backup": [
             -1,
