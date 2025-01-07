@@ -1,0 +1,8 @@
+data
+pyproject.toml
+poetry.lock
+.gitignore
+tester.py
+.dockerignore
+.git
+.DS_Store
