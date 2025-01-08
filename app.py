@@ -56,10 +56,13 @@ if st.button("Generate groups"):
 
 if inputExistent:
     handler.load_data(st.session_state['mainF'], st.session_state['extF'])
-    output_df = handler.compute()
-    # Replace with progress bar
+    with st.status("Creating groups"):
+        st.write("Assigning to groups")
+        st.write("Creating sub-groups")
+        st.write("Adjusting order")
+        output_df = handler.compute()
     downloadDisabled=False
-    st.success("Loaded successfully", icon="✅")
+    st.success("Successfully created groups", icon="✅")
 
 st.divider()
 st.write("### Output:")
