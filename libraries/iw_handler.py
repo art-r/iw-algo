@@ -166,12 +166,10 @@ class IWHandler:
                             "Assigned Category"
                         ].count()
                         if taken_spots < c_info[0]:
-                            print("Still space: ", taken_spots)
                             # still space
                             # the remaining spots
                             rem_spots = c_info[0] - taken_spots
                             # the people that get a spot
-                            # print(df_org[df_org[pref_key] == c][:rem_spots])
                             df = pd.concat(
                                 [df, df_org[df_org[pref_key] == c][:rem_spots]],
                                 ignore_index=True,
@@ -282,4 +280,4 @@ class IWHandler:
         # change back to N/A for categories that do not require subgroups
         df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1, "N/A")
 
-        return df
+        return df.sort_values(by=["Assigned Category", "Assigned Subgroup"])
