@@ -33,7 +33,7 @@ st.markdown("""
     """)
 
 main_file = st.file_uploader("Main file", type=["xlsx", "xls"])
-help_file = st.file_uploader("Extra file (buddy group info)", type=["xlsx", "xls"])
+# help_file = st.file_uploader("Extra file (buddy group info)", type=["xlsx", "xls"])
 
 inputExistent = False
 output_df = pd.DataFrame()
@@ -41,7 +41,7 @@ downloadDisabled = True
 
 if st.button("Generate groups"):
     # check if input was provided
-    if main_file is None or help_file is None:
+    if main_file is None:
         # if no input was provided check if previous session input exists
         if st.session_state['mainF'] is None or st.session_state['extF'] is None:
             st.error("Input missing", icon="🚨")
@@ -51,11 +51,11 @@ if st.button("Generate groups"):
     else:
         # save to session state
         st.session_state['mainF'] = main_file
-        st.session_state['extF'] = help_file
+        # st.session_state['extF'] = help_file
         inputExistent = True
 
 if inputExistent:
-    handler.load_data(st.session_state['mainF'], st.session_state['extF'])
+    handler.load_data(st.session_state['mainF'])
     with st.status("Creating groups"):
         st.write("Assigning to groups")
         st.write("Creating sub-groups")
