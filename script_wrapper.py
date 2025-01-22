@@ -18,7 +18,7 @@ INPUT_DATA = "data/data1.xlsx"
 OUTPUT_NAME = "groups.xlsx"
 ###################################
 
-def main(input_data: str, ext_input: str, outpath: str):
+def main(input_data: str, outpath: str):
     """
     The main entry point
     Arguments:
@@ -27,7 +27,7 @@ def main(input_data: str, ext_input: str, outpath: str):
     if not os.path.isfile(input_data):
         raise FileNotFoundError(f"Provided path is :'{input_data}'")
     handler = IWHandler()
-    handler.load_data(input_data, ext_input)
+    handler.load_data(input_data)
     print("Loaded data successfully")
     print("Started the process for group creation...")
     df = handler.compute()
@@ -44,4 +44,4 @@ def main(input_data: str, ext_input: str, outpath: str):
 
 
 if __name__ == "__main__":
-    main(INPUT_DATA, "data/data2.xlsx", OUTPUT_NAME)
+    main(INPUT_DATA, OUTPUT_NAME)
