@@ -280,4 +280,13 @@ class IWHandler:
         # change back to N/A for categories that do not require subgroups
         df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1, "N/A")
 
+        # set the column order explicitly
+        cols = [
+            self.__config["nameK"],
+            self.__config["sidK"],
+            "buddy group",
+            "Assigned Category",
+            "Assigned Subgroup"
+            ]
+        df = df[cols]
         return df.sort_values(by=["Assigned Category", "Assigned Subgroup"])
