@@ -2,6 +2,7 @@
     "nameK": "name",
     "sidK": "studentnumber",
     "prefMainK": "pref",
+    "buddyK":"buddygroup",
     "categories": {
         "Vikings": [
             2,
