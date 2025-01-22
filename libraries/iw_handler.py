@@ -27,7 +27,7 @@ class IWHandler:
         self.__config = self.__read_config()
         self.__prev_data = False
         self.__data = None
-        self.__ext_data = None
+        # self.__ext_data = None
 
     def __read_config(self):
         """
@@ -42,17 +42,17 @@ class IWHandler:
             print(f"Tried to read {conf_path}")
             raise exc
 
-    def load_data(self, data, extData):
+    def load_data(self, data):
         """
         Internal helper function parse the provided excel data with pandas
         """
         try:
             self.__data = pd.read_excel(data, header=0)
-            self.__ext_data = pd.read_excel(extData, header=0)
+            # self.__ext_data = pd.read_excel(extData, header=0)
         except ValueError:
             # passing potentially an already parsed dataframe
             self.__data = data
-            self.__ext_data = extData
+            # self.__ext_data = extData
         self.__prev_data = True
 
     def prev_data_exists(self):
@@ -127,7 +127,7 @@ class IWHandler:
         Then the special categories are handled where sub-groups need to be created
         """
         # Name - Student Number - Assignment
-        cols = [self.__config["nameK"], self.__config["sidK"], "Assigned Category"]
+        cols = [self.__config["nameK"], self.__config["sidK"], "Assigned Category", self.__config["buddyK"]]
         df = pd.DataFrame(columns=cols)
 
         # Easy case: all can get their 1st preference
@@ -136,6 +136,7 @@ class IWHandler:
             df[self.__config["sidK"]] = self.__data[self.__config["sidK"]]
             pref_key = f"{self.__config['prefMainK']}1"
             df["Assigned Category"] = self.__data[pref_key]
+            df[self.__config["buddyK"]] = self.__data[self.__config["buddyK"]]
         else:
             # create a copy of original df
             df_org = self.__data.copy(True)
@@ -195,26 +196,31 @@ class IWHandler:
             # skip non-special categories
             if c_info[1] is False:
                 continue
-            df_ext = self.__ext_data.copy(True)
+            # df_ext = self.__ext_data.copy(True)
 
             # main idea from https://stackoverflow.com/a/73738016
             # filter only relevant people
-            relevant_ids = df[df["Assigned Category"] == c][
-                self.__config["sidK"]
-            ].values
-            df_ext = df_ext[
-                df_ext[self.__config["extsidK"]].isin(relevant_ids)
-            ].reset_index()
+            # relevant_ids = df[df["Assigned Category"] == c][
+            #     self.__config["sidK"]
+            # ].values
+            # df_ext = df_ext[
+            #     df_ext[self.__config["extsidK"]].isin(relevant_ids)
+            # ].reset_index()
 
             # initialize groups
             # c_info[2] is amount of groups
             groups = {i: [] for i in range(c_info[2])}
 
             # initial random assignment
-            for _, row in df_ext.iterrows():
+            # for _, row in df_ext.iterrows():
+            #     group_index = random.randint(0, c_info[2] - 1)
+            #     groups[group_index].append(
+            #         (row[self.__config["extsidK"]], row[self.__config["extBK"]])
+            #     )
+            for _, row in df[df["Assigned Category"] == c].iterrows():
                 group_index = random.randint(0, c_info[2] - 1)
                 groups[group_index].append(
-                    (row[self.__config["extsidK"]], row[self.__config["extBK"]])
+                    (row[self.__config["sidK"]], row[self.__config["buddyK"]])
                 )
             # Parameters for the simulated annealing
             temp = 100.0
@@ -273,10 +279,12 @@ class IWHandler:
                 group_df.set_index(self.__config["sidK"], inplace=True)
                 df = df.combine_first(group_df)
                 df.reset_index(inplace=True)
-        # change empty to -1 for easier conversion
-        df["Assigned Subgroup"] = df["Assigned Subgroup"].fillna(-1)
+        # change empty to -2 for easier conversion
+        df["Assigned Subgroup"] = df["Assigned Subgroup"].fillna(-2)
         # convert group numbers to int val
         df["Assigned Subgroup"] = df["Assigned Subgroup"].astype(int)
+        # add +1 because we dont want 0 indexed for non-computer science people
+        df["Assigned Subgroup"] += 1
         # change back to N/A for categories that do not require subgroups
         df["Assigned Subgroup"] = df["Assigned Subgroup"].replace(-1, "N/A")
 
