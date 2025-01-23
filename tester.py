@@ -2,23 +2,20 @@
 This file is only used for testing purposes!
 """
 
-from libraries.iw_handler import IWHandler
 import os
 import pandas as pd
 
 def main():
-    if not os.path.isfile("data/data1.xlsx"):
+    if not os.path.isfile("data/danish.xlsx"):
         raise FileNotFoundError()
-    if not os.path.isfile("data/data1.xlsx"):
-        raise FileNotFoundError()
-    df1 = pd.read_excel("data/data1.xlsx")
-    df2 = pd.read_excel("data/data2.xlsx")
 
-    handler = IWHandler()
-    handler.load_data(df1, df2)
-    print("*"*10)
-    print(handler.compute())
-
+    df = pd.read_excel("data/danish.xlsx")
+    col = "🟠Classify your priority on the following workshops, we will try to fit you into what you preferred! (You can find the descriptions of each workshop in the description of the forms and also on you..."
+    categories_df = pd.DataFrame(df[col].str.split(";", expand=True).values, columns=["pref1", "pref2", "pref3", "pref4", "ext"])
+    categories_df.drop("ext", axis=1, inplace=True)
+    # print(categories_df)
+    df = pd.concat([df,categories_df], axis=1)
+    print(df[["Name", "pref1", "pref2", "pref3", "pref4"]])
 
 if __name__ == "__main__":
     main()
