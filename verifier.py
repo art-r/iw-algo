@@ -5,6 +5,7 @@ of the assigned groups:
 - amount of subgroups per workshop (if applicable)
 - amount of unassigned students (marked with "UNASSIGNED")
 """
+
 import os
 import sys
 import json
@@ -20,6 +21,7 @@ CONFIG_FILE = "config.json"
 GROUPS_FILE = "groups.xlsx"
 ###################################
 
+
 def validate_file(path, name):
     """
     Helper file to check if a given file exists
@@ -28,6 +30,7 @@ def validate_file(path, name):
         print(f"FATAL ERROR: Could not find {name}")
         print(f"Provided path is: {path}")
         sys.exit(1)
+
 
 def main(conf_path, groups_path):
     """
@@ -44,7 +47,6 @@ def main(conf_path, groups_path):
         raise exc
 
     df = pd.read_excel(groups_path, header=0)
-
 
     # check amount of unassigned students
     unassigned = df[df["Assigned Category"] == "UNASSIGNED"][config["nameK"]].count()

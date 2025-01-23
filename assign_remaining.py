@@ -10,13 +10,15 @@ Then it will assign them randomly to a workshop that still has space
 and afterwords update the groups file AND additionally output
 a file that contains the just assigned students
 """
+
 import json
 import os
 import sys
 
 import numpy as np
 import pandas as pd
-pd.options.mode.chained_assignment = None 
+
+pd.options.mode.chained_assignment = None
 
 ###################################
 # CONFIGURE THIS
@@ -33,6 +35,7 @@ OUTPUT_NAME = "remaining_assigned.xlsx"
 CONFIG = "config.json"
 ###################################
 
+
 def validate_file(path, name):
     """
     Helper function to validate a file exists
@@ -42,19 +45,21 @@ def validate_file(path, name):
         print(f"Provided path is: {path}")
         sys.exit(1)
 
+
 def assign_rand_group(rng, av_space: dict):
     """
     Helper function assign a person to a random group
     """
     # determine still available category
-    choices = [x for x,y in av_space.items() if y > 0]
+    choices = [x for x, y in av_space.items() if y > 0]
     assigned_group = None
     if len(choices) != 0:
         # return a randomly chosen choice
-        rand_selec = rng.integers(0,len(choices))
+        rand_selec = rng.integers(0, len(choices))
         assigned_group = choices[rand_selec]
         av_space[assigned_group] -= 1
     return assigned_group, av_space
+
 
 def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     """
@@ -68,7 +73,9 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
         print(f"Tried to read {conf_path}")
         raise exc
 
-    validate_file(main_file, "main input (containing all student or remaining student info)")
+    validate_file(
+        main_file, "main input (containing all student or remaining student info)"
+    )
     validate_file(group_file, "group input (containing all assigned group info)")
 
     df = pd.read_excel(main_file, header=0)
@@ -89,7 +96,9 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     total_space = 0
     av_space = {}
     for c, c_info in config["categories"].items():
-        taken_spots = group_df[group_df["Assigned Category"] == c][config["nameK"]].count()
+        taken_spots = group_df[group_df["Assigned Category"] == c][
+            config["nameK"]
+        ].count()
         rem_spots = c_info[0] - taken_spots
         total_space += rem_spots
         av_space[c] = rem_spots
@@ -111,7 +120,7 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     assigned_categories = []
     assigned_subgroups = []
     # categories that require subgroups
-    c_with_subgroups = [c for c,info in config["categories"].items() if info[1]]
+    c_with_subgroups = [c for c, info in config["categories"].items() if info[1]]
 
     for _, row in missing_df.iterrows():
         category, av_space = assign_rand_group(rng, av_space)
@@ -122,7 +131,7 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
             # also choose a random subgroup from the amount of available subgroups
             # note that this might result in some subgroups having a larger
             # amount of students than wanted!
-            subgroup = rng.integers(1,config["categories"][category][2])
+            subgroup = rng.integers(1, config["categories"][category][2])
         else:
             subgroup = "N/A"
         assigned_categories.append(category)
@@ -132,15 +141,15 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     missing_df["Assigned Subgroup"] = np.array(assigned_subgroups)
     print("Done")
     cols = [
-            config["nameK"],
-            config["sidK"],
-            config["buddyK"],
-            "Assigned Category",
-            "Assigned Subgroup",
-        ]
+        config["nameK"],
+        config["sidK"],
+        config["buddyK"],
+        "Assigned Category",
+        "Assigned Subgroup",
+    ]
     # rename the buddy column to match the output of the iw_handler file
     missing_df = missing_df[cols]
-    missing_df.rename(columns={config["buddyK"] : 'buddy group'}, inplace=True)
+    missing_df.rename(columns={config["buddyK"]: "buddy group"}, inplace=True)
     missing_df.to_excel(output_file)
     # merge the output
     group_df = pd.concat([group_df, missing_df])
@@ -151,6 +160,7 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     # sort
     group_df = group_df.sort_values(by=["Assigned Category", "Assigned Subgroup"])
     group_df.to_excel(group_file)
+
 
 if __name__ == "__main__":
     main(CONFIG, INPUT_DATA, GROUPS_FILE, OUTPUT_NAME)

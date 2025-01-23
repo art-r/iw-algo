@@ -5,6 +5,7 @@ the libraries/iw_handler module
 app.py targets a webapp, where this can be run directly from
 a laptop without the need of a web app
 """
+
 import os
 
 from libraries.iw_handler import IWHandler
@@ -17,6 +18,7 @@ INPUT_DATA = "data/danish.xlsx"
 # name of the output file (should end with .xlsx)
 OUTPUT_NAME = "groups.xlsx"
 ###################################
+
 
 def main(input_data: str, outpath: str):
     """
