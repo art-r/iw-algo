@@ -1,20 +1,29 @@
 {
-    "nameK": "name",
-    "sidK": "studentnumber",
+    "nameK": "🔴 Full name",
+    "sidK": "🔴 Student ID (sXXXXXX)",
     "prefMainK": "pref",
-    "buddyK":"buddygroup",
+    "buddyK": "🔵 Exchange Group number (Write as EXX)\n",
+    "catK": "🟠Classify your priority on the following workshops, we will try to fit you into what you preferred! (You can find the descriptions of each workshop in the description of the forms and also on you...",
     "categories": {
-        "Vikings": [
-            2,
+        "Viking Tournament Workshop": [
+            70,
             true,
-            4
+            7
         ],
-        "Backup": [
-            -1,
+        "Lego Workshop": [
+            100,
             true,
             10
+        ],
+        "Danish Games Workshop": [
+            115,
+            true,
+            23
+        ],
+        "Paper Clip Art Workshop": [
+            40,
+            false,
+            0
         ]
-    },
-    "extsidK": "studentnumber",
-    "extBK": "buddygroup"
+    }
 }
