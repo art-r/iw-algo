@@ -200,9 +200,9 @@ class IWHandler:
             # now check if everybody was assigned
             # this means counting the remaining people in the original df
             if df_org.shape[0] > 0:
-                # unassignable people
+                # unassigned people
                 df = pd.concat([df, df_org], ignore_index=True)[cols]
-                df["Assigned Category"] = df["Assigned Category"].fillna("UNASSIGNABLE")
+                df["Assigned Category"] = df["Assigned Category"].fillna("UNASSIGNED")
 
         # handle the sub groups for the special categories
         # filter for special categories
