@@ -48,7 +48,7 @@ This is a dictionary holding as keys the available category names and as value t
 | `extract_buddy_groups.py` | File that creates files per buddy group (easier for distribution) |
 
 ## Running flow (local only):
-1. Run script_wrapper.py
-2. Run assign_remaining.py
-3. Run verifier.py
-4. Run extract_buddy_groups.py
+1. Run script_wrapper.py (to assign all students that signed up)
+2. Run assign_remaining.py (to assign all the students that did not sign up)
+3. Run verifier.py (to check for any wrong amount of groups, unassignable students etc.)
+4. Run extract_buddy_groups.py (to create the files on a per buddy group level and an overall per buddy group sorted file)
