@@ -2,10 +2,12 @@
 This script creates a folder structure
 that will then contain a per buddy group information
 """
+
 import os
 import sys
 
 import pandas as pd
+
 ###################################
 # CONFIGURE THIS
 # name of the input file that contains all groups (will be updated)
@@ -48,6 +50,13 @@ def main(group_path, out_dir):
         # save data
         file_path = os.path.join(out_dir, group, f"{group}-workshop.xlsx")
         df[df["buddy group"] == group].to_excel(file_path)
+
+    print("Finished creating the folder structure")
+
+    # save also an overall per buddy group file
+    overall_name = f"{group_path.split('.xlsx')[0]}-per-buddygroups.xlsx"
+    df.to_excel(overall_name)
+    print(f"Saved also an overall file sorted per buddy groups to {overall_name}")
 
 
 if __name__ == "__main__":
