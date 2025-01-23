@@ -49,7 +49,6 @@ def main(conf_path: str, main_file: str, group_file: str):
     try:
         with open(conf_path, mode="r", encoding="utf-8") as in_file:
             config = json.load(in_file)
-        return config
     except json.JSONDecodeError as exc:
         print(f"Tried to read {conf_path}")
         raise exc
