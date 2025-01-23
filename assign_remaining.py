@@ -122,6 +122,8 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     # categories that require subgroups
     c_with_subgroups = [c for c, info in config["categories"].items() if info[1]]
 
+    print("Starting the random assignment of missing students")
+
     for _, row in missing_df.iterrows():
         category, av_space = assign_rand_group(rng, av_space)
         if category is None:
@@ -140,6 +142,7 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     missing_df["Assigned Category"] = np.array(assigned_categories)
     missing_df["Assigned Subgroup"] = np.array(assigned_subgroups)
     print("Done")
+
     cols = [
         config["nameK"],
         config["sidK"],
@@ -147,10 +150,15 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
         "Assigned Category",
         "Assigned Subgroup",
     ]
-    # rename the buddy column to match the output of the iw_handler file
+
     missing_df = missing_df[cols]
+    # rename the buddy column to match the output of the iw_handler file
     missing_df.rename(columns={config["buddyK"]: "buddy group"}, inplace=True)
     missing_df.to_excel(output_file)
+    print(
+        f"Saved file that ONLY holds now assigned students to '{output_file}' (for checking purposes)"
+    )
+
     # merge the output
     group_df = pd.concat([group_df, missing_df])
     # drop a potential new unnamed 0 column
@@ -160,6 +168,9 @@ def main(conf_path: str, main_file: str, group_file: str, output_file: str):
     # sort
     group_df = group_df.sort_values(by=["Assigned Category", "Assigned Subgroup"])
     group_df.to_excel(group_file)
+    print(
+        f"Updated the initial groups file ({group_file}) with the new assigned students"
+    )
 
 
 if __name__ == "__main__":
