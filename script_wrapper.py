@@ -37,10 +37,12 @@ def main(input_data: str, outpath: str):
     print(f"Saved overall overview to '{outpath}'")
 
     # save also sorted by buddy group
-    df = df.sort_values(by=["buddy group"])
-    outpath = f"{outpath.split('.')[0]}-BUDDYGROUPS.xlsx"
-    df.to_excel(outpath)
-    print(f"Saved overview sorted by buddy groups to '{outpath}'")
+    # will be done in extra script
+    # this allows to first run assign_remaining!
+    # df = df.sort_values(by=["buddy group"])
+    # outpath = f"{outpath.split('.')[0]}-BUDDYGROUPS.xlsx"
+    # df.to_excel(outpath)
+    # print(f"Saved overview sorted by buddy groups to '{outpath}'")
 
 
 if __name__ == "__main__":
