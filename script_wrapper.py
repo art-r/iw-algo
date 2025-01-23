@@ -12,7 +12,7 @@ from libraries.iw_handler import IWHandler
 ###################################
 # CONFIGURE THIS
 # path to the input file
-INPUT_DATA = "data/data1.xlsx"
+INPUT_DATA = "data/danish.xlsx"
 
 # name of the output file (should end with .xlsx)
 OUTPUT_NAME = "groups.xlsx"
