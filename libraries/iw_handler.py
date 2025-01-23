@@ -25,7 +25,6 @@ class IWHandler:
 
     def __init__(self):
         self.__config = self.__read_config()
-        self.__prev_data = False
         self.__data = None
         # self.__ext_data = None
 
@@ -48,18 +47,30 @@ class IWHandler:
         """
         try:
             self.__data = pd.read_excel(data, header=0)
-            # self.__ext_data = pd.read_excel(extData, header=0)
         except ValueError:
             # passing potentially an already parsed dataframe
             self.__data = data
-            # self.__ext_data = extData
-        self.__prev_data = True
+        # parse the categories column
+        # the pref cols will be prefMainK1, prefMainK2, prefMainK3, ..
+        # so with prefMainK set to pref it would be pref1, pref2, ...
+        pref_cols = [
+            f"{self.__config['prefMainK']}{x}"
+            for x in range(1, len(self.__config["categories"].keys()) + 1)
+        ]
 
-    def prev_data_exists(self):
-        """
-        Public function to determine if previous data is available
-        """
-        return self.__prev_data
+        # the excel file saves the preferences with a trailing ; so there will be an extra empty column always
+        pref_cols.append("ext")
+        cat_df = pd.DataFrame(
+            self.__data[self.__config["catK"]].str.split(";", expand=True).values,
+            columns=pref_cols,
+        )
+        # drop the empty extra column
+        cat_df.drop("ext", axis=1, inplace=True)
+        # drop the initial column
+        self.__data.drop(self.__config["catK"], axis=1, inplace=True)
+
+        # now merge with the existing one
+        self.__data = pd.concat([self.__data, cat_df], axis=1)
 
     def __check_easy_case(self):
         """
@@ -80,7 +91,7 @@ class IWHandler:
         if no_limit:
             return True
 
-        # compare the limits
+        # compare the limits for the first preference
         all_below_limit = True
         for c_name, c_info in self.__config["categories"].items():
             df_key = f"{self.__config['prefMainK']}1"
@@ -127,7 +138,12 @@ class IWHandler:
         Then the special categories are handled where sub-groups need to be created
         """
         # Name - Student Number - Assignment
-        cols = [self.__config["nameK"], self.__config["sidK"], "Assigned Category", self.__config["buddyK"]]
+        cols = [
+            self.__config["nameK"],
+            self.__config["sidK"],
+            "Assigned Category",
+            self.__config["buddyK"],
+        ]
         df = pd.DataFrame(columns=cols)
 
         # Easy case: all can get their 1st preference
@@ -191,32 +207,16 @@ class IWHandler:
         # handle the sub groups for the special categories
         # filter for special categories
         # lookup the respective buddy group
-
         for c, c_info in self.__config["categories"].items():
             # skip non-special categories
             if c_info[1] is False:
                 continue
-            # df_ext = self.__ext_data.copy(True)
-
-            # main idea from https://stackoverflow.com/a/73738016
-            # filter only relevant people
-            # relevant_ids = df[df["Assigned Category"] == c][
-            #     self.__config["sidK"]
-            # ].values
-            # df_ext = df_ext[
-            #     df_ext[self.__config["extsidK"]].isin(relevant_ids)
-            # ].reset_index()
 
             # initialize groups
             # c_info[2] is amount of groups
             groups = {i: [] for i in range(c_info[2])}
 
             # initial random assignment
-            # for _, row in df_ext.iterrows():
-            #     group_index = random.randint(0, c_info[2] - 1)
-            #     groups[group_index].append(
-            #         (row[self.__config["extsidK"]], row[self.__config["extBK"]])
-            #     )
             for _, row in df[df["Assigned Category"] == c].iterrows():
                 group_index = random.randint(0, c_info[2] - 1)
                 groups[group_index].append(
@@ -294,7 +294,7 @@ class IWHandler:
             self.__config["sidK"],
             "buddy group",
             "Assigned Category",
-            "Assigned Subgroup"
-            ]
+            "Assigned Subgroup",
+        ]
         df = df[cols]
         return df.sort_values(by=["Assigned Category", "Assigned Subgroup"])
