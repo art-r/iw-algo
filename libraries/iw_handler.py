@@ -292,9 +292,11 @@ class IWHandler:
         cols = [
             self.__config["nameK"],
             self.__config["sidK"],
-            "buddy group",
+            self.__config["buddyK"],
             "Assigned Category",
             "Assigned Subgroup",
         ]
         df = df[cols]
+        # rename the buddy group column
+        df.rename(columns={self.__config["buddyK"]:"buddy group"}, inplace=True)
         return df.sort_values(by=["Assigned Category", "Assigned Subgroup"])

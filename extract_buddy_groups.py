@@ -43,6 +43,9 @@ def main(group_path, out_dir):
     # get the unique buddy group values
     buddy_groups = df["buddy group"].unique()
 
+    # remove unneeded columns if existent
+    df.drop(["Unnamed: 0", "index"], inplace=True, errors="ignore")
+
     # save the per buddy group info
     for group in buddy_groups:
         # create buddy group dir

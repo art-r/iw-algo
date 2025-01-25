@@ -81,7 +81,7 @@ def main(conf_path, groups_path):
                 )
         else:
             # check that nobody in this category has been assigned to a subgroup
-            subgroup_ppl = df_filter[df_filter["Assigned Subgroup"] != "N/A"][
+            subgroup_ppl = df_filter[~df_filter["Assigned Subgroup"].isna()][
                 config["nameK"]
             ].count()
             if subgroup_ppl > 0:
@@ -93,7 +93,7 @@ def main(conf_path, groups_path):
                 )
                 print("\tThese are the people:")
                 print(
-                    df_filter[df_filter["Assigned Subgroup"] != "N/A"][config["nameK"]]
+                    df_filter[~df_filter["Assigned Subgroup"].isna()][config["nameK"]]
                 )
                 print("#" * 15)
 
